@@ -17,7 +17,10 @@ export const login = createAsyncThunk("auth/login", async (userData) => {
   return response.data;
 });
 
-
+export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
+  const response = await axios.get(`${API_URL}/users/2`);
+  return response.data.data;
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -39,6 +42,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Register
       .addCase(register.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -52,6 +56,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message;
       })
+      // Login
       .addCase(login.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -65,6 +70,10 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message;
       })
+      // Fetch User
+      .addCase(fetchUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+      });
   },
 });
 
