@@ -4,12 +4,19 @@ import axios from "axios";
 const API_URL = "https://reqres.in/api";
 const headers = {
   "x-api-key": "reqres-free-v1",
+  "Content-Type": "application/json",
 };
 
 export const register = createAsyncThunk("auth/register", async (userData) => {
   const response = await axios.post(`${API_URL}/register`, userData, { headers });
   return response.data;
 });
+
+export const login = createAsyncThunk("auth/login", async (userData) => {
+  const response = await axios.post(`${API_URL}/login`, userData, { headers });
+  return response.data;
+});
+
 
 
 const authSlice = createSlice({
@@ -42,6 +49,19 @@ const authSlice = createSlice({
         localStorage.setItem("token", action.payload.token);
       })
       .addCase(register.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.token = action.payload.token;
+        localStorage.setItem("token", action.payload.token);
+      })
+      .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
       })
