@@ -1,12 +1,11 @@
-// src/components/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Container, Button, Spinner, Alert } from "react-bootstrap";
-import { fetchTasks, addTask } from "../store/slices/taskSlice";
-import { fetchUser } from "../store/slices/authSlice";
-import TaskList from "./tasks/TaskList";
-import TaskFilters from "./tasks/TaskFilters";
-import TaskForm from "./tasks/TaskForm";
+import { addTask, fetchTasks } from "../../store/slices/taskSlice";
+import { fetchUser } from "../../store/slices/authSlice";
+import TaskList from "../task/TaskList";
+import TaskFilters from "../task/TaskFilters";
+import TaskForm from "../task/TaskForm";
 
 const Dashboard = () => {
   const dispatch = useDispatch();

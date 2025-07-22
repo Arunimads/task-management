@@ -42,7 +42,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Register
       .addCase(register.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -56,7 +55,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message;
       })
-      // Login
       .addCase(login.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -70,7 +68,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message;
       })
-      // Fetch User
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.user = action.payload;
       });
