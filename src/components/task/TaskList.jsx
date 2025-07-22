@@ -6,6 +6,7 @@ import {
   toggleTaskStatus,
   updateTask,
 } from "../../store/slices/taskSlice";
+import TaskForm from "./TaskForm";
 import Dialog from "../ui/Dialog";
 
 const TaskList = ({ tasks }) => {
@@ -98,6 +99,15 @@ const TaskList = ({ tasks }) => {
           ))}
         </tbody>
       </Table>
+
+      {editingTask && (
+        <TaskForm
+          show={!!editingTask}
+          onHide={() => setEditingTask(null)}
+          onSubmit={handleUpdate}
+          initialData={editingTask}
+        />
+      )}
 
       <Dialog
         show={!!deletingTaskId}
