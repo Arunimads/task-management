@@ -14,11 +14,13 @@ export const register = createAsyncThunk("auth/register", async (userData) => {
 
 export const login = createAsyncThunk("auth/login", async (userData) => {
   const response = await axios.post(`${API_URL}/login`, userData, { headers });
+  console.log('user login',response)
   return response.data;
 });
 
 export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
-  const response = await axios.get(`${API_URL}/users/2`);
+  const response = await axios.get(`${API_URL}/users/2`,{ headers });
+  console.log('fetchUser',response)
   return response.data.data;
 });
 

@@ -13,6 +13,8 @@ const Dashboard = () => {
   const { filteredTasks, isLoading, error } = useSelector(
     (state) => state.tasks
   );
+
+  const userTasks = filteredTasks.filter(task => task.userId === user.id);
   const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
@@ -53,10 +55,10 @@ const Dashboard = () => {
 
       <TaskFilters />
 
-      {filteredTasks.length === 0 ? (
+      {userTasks.length === 0 ? (
         <Alert variant="warning">No tasks found.</Alert>
       ) : (
-        <TaskList tasks={filteredTasks} />
+        <TaskList tasks={userTasks} />
       )}
 
       <TaskForm
