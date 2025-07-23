@@ -67,7 +67,7 @@ const TaskForm = ({ show, onHide, onSubmit, initialData = null }) => {
 
           <Form.Group className="mb-3">
             <Form.Check
-              type="checkbox"
+              type="switch"
               label="Completed"
               {...register("completed")}
             />
@@ -77,7 +77,7 @@ const TaskForm = ({ show, onHide, onSubmit, initialData = null }) => {
           <Button variant="secondary" onClick={onHide}>
             Cancel
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant={initialData ? "primary" : "success"} type="submit">
             {initialData ? "Update" : "Add"} Task
           </Button>
         </Modal.Footer>

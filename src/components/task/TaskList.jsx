@@ -1,21 +1,16 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import { Table, Button, Badge, Form } from "react-bootstrap";
-import {
-  deleteTask,
-  toggleTaskStatus,
-  updateTask,
-} from "../../store/slices/taskSlice";
+import useTasks from "../../hooks/useTasks";
 import TaskForm from "./TaskForm";
 import Dialog from "../ui/Dialog";
 
 const TaskList = ({ tasks }) => {
-  const dispatch = useDispatch();
+  const { deleteTask, toggleStatus, updateTask } = useTasks();
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTaskId, setDeletingTaskId] = useState(null);
 
   const handleToggleStatus = (taskId) => {
-    dispatch(toggleTaskStatus(taskId));
+    toggleStatus(taskId);
   };
 
   const handleEdit = (task) => {
@@ -23,82 +18,99 @@ const TaskList = ({ tasks }) => {
   };
 
   const handleUpdate = (data) => {
-    dispatch(
-      updateTask({ id: editingTask.id, ...data, userId: editingTask.userId })
-    );
+    const dueDate = new Date(data.dueDate);
+    const yyyy = dueDate.getFullYear();
+    const mm = String(dueDate.getMonth() + 1).padStart(2, "0");
+    const dd = String(dueDate.getDate()).padStart(2, "0");
+    const formattedDueDate = `${yyyy}-${mm}-${dd}`;
+    updateTask({
+      id: editingTask.id,
+      ...data,
+      userId: editingTask.userId,
+      dueDate: formattedDueDate,
+    });
     setEditingTask(null);
   };
 
   const handleDelete = () => {
-    dispatch(deleteTask(deletingTaskId));
+    deleteTask(deletingTaskId);
     setDeletingTaskId(null);
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleDateString("In");
   };
 
   const getStatusBadge = (completed) => {
     return completed ? (
       <Badge bg="success">Completed</Badge>
     ) : (
-      <Badge bg="warning">Pending</Badge>
+      <Badge bg="warning" className="text-dark">
+        Pending
+      </Badge>
     );
   };
 
   return (
     <>
-      <Table responsive hover>
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Title</th>
-            <th>Due Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task) => (
-            <tr key={task.id}>
-              <td>
-                <Form.Check
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => handleToggleStatus(task.id)}
-                />
-              </td>
-              <td>
-                <span
-                  className={
-                    task.completed ? "text-decoration-line-through" : ""
-                  }
-                >
-                  {task.title}
-                </span>
-                <div className="mt-1">{getStatusBadge(task.completed)}</div>
-              </td>
-              <td>{formatDate(task.dueDate)}</td>
-              <td>
-                <Button
-                  variant="info"
-                  size="sm"
-                  className="me-2"
-                  onClick={() => handleEdit(task)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => setDeletingTaskId(task.id)}
-                >
-                  Delete
-                </Button>
-              </td>
+      <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+        <Table responsive hover className="mb-0" size="sm">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Title</th>
+              <th>Due Date</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {tasks.map((task) => (
+              <tr key={task.id}>
+                <td>
+                  <div className="d-flex gap-1">
+                    <Form.Check
+                      type="switch"
+                      label=""
+                      checked={task.completed}
+                      onChange={() => handleToggleStatus(task.id)}
+                    />
+                    <div className="">{getStatusBadge(task.completed)}</div>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    className={
+                      task.completed ? "text-decoration-line-through" : ""
+                    }
+                  >
+                    {task.title}
+                  </span>
+                </td>
+                <td>{formatDate(task.dueDate)}</td>
+                <td>
+                  <div className="d-flex gap-1">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="me-2"
+                      onClick={() => handleEdit(task)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setDeletingTaskId(task.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
 
       {editingTask && (
         <TaskForm

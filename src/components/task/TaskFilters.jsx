@@ -1,42 +1,59 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { ButtonGroup, Button, Form, Row, Col } from "react-bootstrap";
-import { setFilter, setSortBy } from "../../store/slices/taskSlice";
+import useTasks from "../../hooks/useTasks";
 
 const TaskFilters = () => {
-  const dispatch = useDispatch();
-  const { filter, sortBy } = useSelector((state) => state.tasks);
+  const {
+    filter,
+    sortBy,
+    sortOrder,
+    setTaskFilter,
+    setTaskSortBy,
+    setTaskSortOrder,
+  } = useTasks();
+
+  const handleSortChange = (e) => {
+    const [sortField, order] = e.target.value.split("-");
+    setTaskSortBy(sortField);
+    setTaskSortOrder(order);
+  };
+
+  const getSortValue = () => {
+    return `${sortBy}-${sortOrder}`;
+  };
 
   return (
-    <Row className="mb-3">
-      <Col md={8}>
+    <Row className="mb-3 g-2">
+      <Col xs={12} md={8} className="d-flex justify-content-start">
         <ButtonGroup>
           <Button
-            variant={filter === "all" ? "primary" : "outline-primary"}
-            onClick={() => dispatch(setFilter("all"))}
+            variant={filter === "all" ? "secondary" : "outline-secondary"}
+            onClick={() => setTaskFilter("all")}
           >
             All
           </Button>
           <Button
-            variant={filter === "completed" ? "primary" : "outline-primary"}
-            onClick={() => dispatch(setFilter("completed"))}
+            variant={filter === "completed" ? "secondary" : "outline-secondary"}
+            onClick={() => setTaskFilter("completed")}
           >
             Completed
           </Button>
           <Button
-            variant={filter === "pending" ? "primary" : "outline-primary"}
-            onClick={() => dispatch(setFilter("pending"))}
+            variant={filter === "pending" ? "secondary" : "outline-secondary"}
+            onClick={() => setTaskFilter("pending")}
           >
             Pending
           </Button>
         </ButtonGroup>
       </Col>
-      <Col md={4}>
+      <Col xs={12} md={4} className="d-flex justify-content-md-end">
         <Form.Select
-          value={sortBy}
-          onChange={(e) => dispatch(setSortBy(e.target.value))}
+          value={getSortValue()}
+          onChange={handleSortChange}
+          style={{ maxWidth: "250px" }}
         >
-          <option value="dueDate">Sort by Due Date</option>
+          <option value="dueDate-asc">Sort by Due Date Ascending</option>
+          <option value="dueDate-desc">Sort by Due Date Descending</option>
         </Form.Select>
       </Col>
     </Row>
