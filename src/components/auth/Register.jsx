@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
 import { Container, Form, Button, Alert, Card } from "react-bootstrap";
 import {
   register as registerUser,
   clearError,
 } from "../../store/slices/authSlice";
+import { Link } from "react-router-dom";
 
 const schema = yup.object({
   email: yup.string().email("Invalid email").required("Email is required"),
@@ -20,8 +20,9 @@ const schema = yup.object({
 
 const Register = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { isLoading, error, token } = useSelector((state) => state.auth);
+  const [success, setSuccess] = useState(false);
+
+  const { isLoading, error } = useSelector((state) => state.auth);
 
   const {
     register,
@@ -32,16 +33,18 @@ const Register = () => {
   });
 
   useEffect(() => {
-    if (token) {
-      navigate("/dashboard");
-    }
     return () => {
       dispatch(clearError());
     };
-  }, [token, navigate, dispatch]);
+  }, [dispatch]);
 
-  const onSubmit = (data) => {
-    dispatch(registerUser(data));
+  const onSubmit = async (data) => {
+    try {
+      await dispatch(registerUser(data));
+      setSuccess(true);
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
   };
 
   return (
@@ -53,6 +56,12 @@ const Register = () => {
         <Card.Body>
           <h2 className="text-center mb-4">Register</h2>
           {error && <Alert variant="danger">{error}</Alert>}
+          {success && (
+            <Alert variant="success">
+              Registered successfully. Please Login
+            </Alert>
+          )}
+
           <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group className="mb-3">
               <Form.Label>Email</Form.Label>
@@ -73,6 +82,7 @@ const Register = () => {
                 type="password"
                 {...register("password")}
                 isInvalid={!!errors.password}
+                placeholder="password"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.password?.message}

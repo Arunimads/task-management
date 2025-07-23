@@ -29,13 +29,18 @@ const Login = () => {
     if (token) {
       navigate("/dashboard");
     }
+
     return () => {
       dispatch(clearError());
     };
   }, [token, navigate, dispatch]);
 
-  const onSubmit = (data) => {
-    dispatch(login(data));
+  const onSubmit = async (data) => {
+    try {
+      await dispatch(login(data));
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (

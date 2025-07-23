@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const API_URL = "https://reqres.in/api";
@@ -7,74 +7,105 @@ const headers = {
   "Content-Type": "application/json",
 };
 
-export const register = createAsyncThunk("auth/register", async (userData) => {
-  const response = await axios.post(`${API_URL}/register`, userData, { headers });
-  return response.data;
-});
-
-export const login = createAsyncThunk("auth/login", async (userData) => {
-  const response = await axios.post(`${API_URL}/login`, userData, { headers });
-  console.log('user login',response)
-  return response.data;
-});
-
-export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
-  const response = await axios.get(`${API_URL}/users/2`,{ headers });
-  console.log('fetchUser',response)
-  return response.data.data;
-});
+const initialState = {
+  user: null,
+  token: null,
+  isLoading: false,
+  error: null,
+};
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    user: null,
-    token: null,
-    isLoading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
+    
+    setError: (state, action) => {
+      state.error = action.payload;
+      state.isLoading = false;
+    },
+    
+    clearError: (state) => {
+      state.error = null;
+    },
+    
+    registerSuccess: (state) => {
+      state.isLoading = false;
+      state.error = null;
+    },
+    
+    loginSuccess: (state, action) => {
+      state.isLoading = false;
+      state.error = null;
+      state.token = action.payload.token;
+    },
+    
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
+    
     logout: (state) => {
       state.user = null;
       state.token = null;
       localStorage.removeItem("token");
     },
-    clearError: (state) => {
-      state.error = null;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(register.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(register.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.token = action.payload.token;
-        localStorage.setItem("token", action.payload.token);
-      })
-      .addCase(register.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message;
-      })
-      .addCase(login.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.token = action.payload.token;
-        localStorage.setItem("token", action.payload.token);
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message;
-      })
-      .addCase(fetchUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-      });
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const {
+  setLoading,
+  setError,
+  clearError,
+  registerSuccess,
+  loginSuccess,
+  setUser,
+  logout,
+} = authSlice.actions;
+
+export const register = (userData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const response = await axios.post(`${API_URL}/register`, userData, { headers });
+      dispatch(registerSuccess());
+      return response.data;
+    } catch (error) {
+      dispatch(setError(error.response?.data?.error || error.message));
+      throw error;
+    }
+  };
+};
+
+export const login = (userData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(setLoading(true));
+      const response = await axios.post(`${API_URL}/login`, userData, { headers });
+      console.log('user login', response);
+      dispatch(loginSuccess({ token: response.data.token }));
+      localStorage.setItem("token", response.data.token);
+      return response.data;
+    } catch (error) {
+      dispatch(setError(error.response?.data?.error || error.message));
+      throw error;
+    }
+  };
+};
+
+export const fetchUser = () => {
+  return async (dispatch) => {
+    try {
+      const response = await axios.get(`${API_URL}/users/2`, { headers });
+      console.log('fetchUser', response);
+      dispatch(setUser(response.data.data));
+      return response.data.data;
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+      throw error;
+    }
+  };
+};
+
 export default authSlice.reducer;
