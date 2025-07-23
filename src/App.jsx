@@ -6,15 +6,13 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
-import Dashboard from "./components/Dashboard/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/navbar/Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Dashboard from "./components/dashboard/Dashboard";
 
-const queryClient = new QueryClient();
 
 function App() {
   const { darkMode } = useSelector((state) => state.theme);
@@ -28,7 +26,6 @@ function App() {
   }, [darkMode]);
 
   return (
-    <QueryClientProvider client={queryClient}>
       <Router>
         <Navbar />
         <Routes>
@@ -45,7 +42,6 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
-    </QueryClientProvider>
   );
 }
 
